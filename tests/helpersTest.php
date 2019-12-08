@@ -27,13 +27,4 @@ class helpersTest extends TestCase
             get_protected_property(ssr('test.js'), 'src')
         );
     }
-
-    public function test_returns_instance_with_src_and_url_set()
-    {
-        $ssr = ssr('test.js', 'https://example.com');
-
-        $this->assertEquals('test.js', get_protected_property($ssr, 'src'));
-
-        $this->assertEquals('https://example.com', get_protected_property($ssr, 'url'));
-    }
 }

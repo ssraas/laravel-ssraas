@@ -20,8 +20,6 @@ class Ssr
 
     protected $secret = '';
 
-    protected $url = '';
-
     protected $src = '';
 
     protected $context = [];
@@ -120,14 +118,12 @@ class Ssr
 
     /**
      * @param string $src
-     * @param string|null $url
      *
      * @return $this
      */
-    public function src(string $src, string $url = null)
+    public function src(string $src)
     {
         $this->src = $src;
-        $this->url = $url ?? url('/');
 
         return $this;
     }
@@ -213,24 +209,32 @@ class Ssr
      */
     private function remoteRender()
     {
-        $filepath = public_path($this->src);
+        $contents = file_get_contents(public_path($this->src));
 
         try {
             $response = $this->guzzle
                 ->request('POST', "{$this->host}/api/applications/{$this->app}/render", [
                     'headers' => [
+                        'Accept' => 'application/json',
                         'Authorization' => "Bearer {$this->secret}",
                     ],
-                    'form_params' => [
-                        'url' => $this->url,
-                        'src' => $this->src,
-                        'context' => $this->context,
-                        'env' => $this->env,
-                        'filesize' => filesize($filepath),
-                        'checksums' => [
-                            'src' => crc32(file_get_contents($filepath)),
-                            'context' => crc32(json_encode($this->context)),
-                            'env' => crc32(json_encode($this->env)),
+                    'multipart' => [
+                        [
+                            'name' => 'src',
+                            'contents' => $contents,
+                            'filename' => $this->src,
+                        ],
+                        [
+                            'name' => 'checksum',
+                            'contents' => crc32($contents),
+                        ],
+                        [
+                            'name' => 'context',
+                            'contents' => json_encode($this->context),
+                        ],
+                        [
+                            'name' => 'env',
+                            'contents' => json_encode($this->env),
                         ]
                     ]
                 ]);
