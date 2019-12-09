@@ -42,7 +42,7 @@ class SsrServiceProvider extends ServiceProvider
                         $this->app->config->get('services.ssraas.app'),
                         $this->app->config->get('services.ssraas.secret')
                     )
-                    ->host($this->app->config->get('ssr.host'))
+                    ->host($this->app->config->get('ssr.host', 'https://ssraas.com'))
                     ->local($this->app->config->get('ssr.local'))
                     ->enabled($this->app->config->get('ssr.enabled'))
                     ->debug($this->app->config->get('ssr.debug'))

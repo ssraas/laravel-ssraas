@@ -17,7 +17,7 @@ class Ssr
 
     protected $cache;
 
-    protected $host = '';
+    protected $host = 'https://ssraas.com';
 
     protected $app = '';
 
