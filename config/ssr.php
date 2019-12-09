@@ -26,6 +26,11 @@ return [
     /*
      * //
      */
+    'cache' => \Ssraas\LaravelSsraas\CacheHandler::class,
+
+    /*
+     * //
+     */
     'mix' => true,
 
     /*

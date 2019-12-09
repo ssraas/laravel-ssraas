@@ -49,6 +49,7 @@ class SsrServiceProvider extends ServiceProvider
                     ->context('url', $this->app->request->getRequestUri())
                     ->context($this->app->config->get('ssr.context'))
                     ->env($this->app->config->get('ssr.env'))
+                    ->cache($this->app->config->get('ssr.cache'))
                     ->resolveEntryWith(new MixResolver($this->app->config->get('ssr.mix')));;
             }
         );

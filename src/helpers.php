@@ -1,11 +1,13 @@
 <?php
 
+/**
+ * @param string|null $src
+ *
+ * @return Ssraas\LaravelSsraas\Ssr
+ */
 function ssr(string $src = null)
 {
-    if (func_num_args() === 0) {
-        return app('ssr');
+    $ssr = app('ssr');
 
-    }
-
-    return app('ssr')->src($src);
+    return func_num_args() === 0 ? $ssr : $ssr->src($src);
 }

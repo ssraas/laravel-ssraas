@@ -2,6 +2,7 @@
 
 namespace Ssraas\LaravelSsraas;
 
+use Exception;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Ssr\Engines\Node;
@@ -13,6 +14,8 @@ class Ssr
     protected $engine;
 
     protected $guzzle;
+
+    protected $cache;
 
     protected $host = '';
 
@@ -191,7 +194,22 @@ class Ssr
     }
 
     /**
+     * @param string|CacheHandlerInterface $cache
      *
+     * @return $this
+     */
+    public function cache($cache)
+    {
+        $this->cache = $cache;
+
+        return $this;
+    }
+
+    /**
+     * Render the script
+     *
+     * @throws Exception
+     * @return string
      */
     public function render()
     {
@@ -199,13 +217,36 @@ class Ssr
             return $this->fallback;
         }
 
-        return $this->local
-            ? $this->localRender()
-            : $this->remoteRender();
+        $render = function () {
+            return $this->local
+                ? $this->localRender()
+                : $this->remoteRender();
+        };
+
+        if ($this->cache) {
+            $cache = is_string($this->cache)
+                ? app($this->cache)
+                : $this->cache;
+
+            if (!$cache instanceof CacheHandlerInterface) {
+                throw new Exception('SSR Cache handler is not an instance of '.CacheHandlerInterface::class.':class');
+            }
+
+            return $cache->handle(
+                $this->src,
+                $this->context,
+                $this->env,
+                $render
+            );
+        }
+
+        return $render();
     }
 
     /**
+     * Remotely render the script
      *
+     * @return string
      */
     private function remoteRender()
     {
@@ -263,6 +304,11 @@ class Ssr
         return $result;
     }
 
+    /**
+     * Locally render the script
+     *
+     * @return string
+     */
     private function localRender()
     {
         try {
